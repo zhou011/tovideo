@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToVideo 视频生成工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-section h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        textarea {
+            height: 300px;
+            resize: vertical;
+        }
+
+        .file-input-group {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(79, 172, 254, 0.4);
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .progress-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .progress-section.show {
+            display: block;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-time {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .progress-bar-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .progress-message {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+
+        .progress-percentage {
+            text-align: center;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #c33;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #363;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #363;
+        }
+
+        .video-preview {
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+
+        .video-preview.show {
+            display: block;
+        }
+
+        .video-preview video {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 14px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(17, 153, 142, 0.3);
+        }
+
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+        }
+
+        .json-buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .clear-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background: #c82333;
+        }
+
+        .format-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .format-btn:hover {
+            background: #218838;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .file-input-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 ToVideo</h1>
+            <p>智能视频生成工具 - 将文本、图片和音频组合成精美视频</p>
+        </div>
+
+        <div class="main-content">
+            <!-- JSON输入区域 -->
+            <div class="form-section">
+                <h3>📝 JSON 内容输入</h3>
+                <div class="form-group">
+                    <label for="jsonContent">请输入视频生成的JSON配置：</label>
+                    <textarea id="jsonContent" placeholder='{
+  "content": [
+    {
+      "cn": "中文文本",
+      "en": "English Text",
+      "img": "图片URL",
+      "cn_speech": "中文语音URL",
+      "en_speech": "英文语音URL"
+    }
+  ],
+  "cover_img": "封面图片URL",
+  "cover_speech": "封面音频URL",
+  "cover_txt": "封面文字"
+}'></textarea>
+                    <div class="json-buttons">
+                        <button class="clear-btn" onclick="clearJson()">清除</button>
+                        <button class="format-btn" onclick="formatJson()">格式化</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 文件设置区域 -->
+            <div class="form-section">
+                <h3>💾 输出设置</h3>
+                <div class="form-group">
+                    <label for="filename">视频文件名：</label>
+                    <div class="file-input-group">
+                        <input type="text" id="filename" placeholder="请输入文件名（不含扩展名）" value="my_video">
+                        <span style="color: #666; padding: 15px 0;">.mp4</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 生成按钮 -->
+            <div class="form-section">
+                <button class="generate-btn" id="generateBtn" onclick="generateVideo()">
+                    🚀 生成视频
+                </button>
+            </div>
+
+            <!-- 进度显示区域 -->
+            <div class="progress-section" id="progressSection">
+                <div class="progress-header">
+                    <div class="progress-title">🔄 视频生成中...</div>
+                    <div class="progress-time" id="progressTime">00:00:00</div>
+                    <button class="reset-btn" onclick="resetStatus()">重置</button>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="progress-message" id="progressMessage">准备开始...</div>
+                <div class="progress-percentage" id="progressPercentage">0%</div>
+                <div id="errorMessage"></div>
+                <div id="successMessage"></div>
+            </div>
+
+            <!-- 视频预览区域 -->
+            <div class="video-preview" id="videoPreview">
+                <h3>🎥 视频预览</h3>
+                <video id="previewVideo" controls>
+                    您的浏览器不支持视频播放。
+                </video>
+                <br>
+                <a class="download-btn" id="downloadBtn" href="#" download>
+                    📥 下载视频
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let statusCheckInterval = null;
+
+        function clearJson() {
+            document.getElementById('jsonContent').value = '';
+        }
+
+        function formatJson() {
+            const jsonContent = document.getElementById('jsonContent').value.trim();
+            
+            if (!jsonContent) {
+                alert('请先输入JSON内容');
+                return;
+            }
+            
+            try {
+                const parsed = JSON.parse(jsonContent);
+                document.getElementById('jsonContent').value = JSON.stringify(parsed, null, 2);
+            } catch (e) {
+                alert('JSON格式错误，无法格式化：' + e.message);
+            }
+        }
+
+        function generateVideo() {
+            const jsonContent = document.getElementById('jsonContent').value.trim();
+            const filename = document.getElementById('filename').value.trim();
+
+            if (!jsonContent) {
+                alert('请输入JSON内容');
+                return;
+            }
+
+            if (!filename) {
+                alert('请输入文件名');
+                return;
+            }
+
+            // 验证JSON格式
+            try {
+                JSON.parse(jsonContent);
+            } catch (e) {
+                alert('JSON格式错误：' + e.message);
+                return;
+            }
+
+            // 显示进度区域
+            document.getElementById('progressSection').classList.add('show');
+            document.getElementById('videoPreview').classList.remove('show');
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('generateBtn').textContent = '⏳ 生成中...';
+
+            // 清空之前的消息
+            document.getElementById('errorMessage').innerHTML = '';
+            document.getElementById('successMessage').innerHTML = '';
+
+            // 发送生成请求
+            fetch('/api/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    json_content: jsonContent,
+                    filename: filename
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 开始检查状态
+                    startStatusCheck();
+                } else {
+                    showError(data.message);
+                    resetButton();
+                }
+            })
+            .catch(error => {
+                showError('请求失败：' + error.message);
+                resetButton();
+            });
+        }
+
+        function startStatusCheck() {
+            statusCheckInterval = setInterval(checkStatus, 1000);
+        }
+
+        function stopStatusCheck() {
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+        }
+
+        function checkStatus() {
+            fetch('/api/status')
+            .then(response => response.json())
+            .then(data => {
+                updateProgress(data);
+                
+                if (!data.is_running) {
+                    stopStatusCheck();
+                    
+                    if (data.error) {
+                        showError(data.error);
+                        resetButton();
+                    } else if (data.output_file && data.progress === 100) {
+                        showSuccess('视频生成完成！');
+                        showVideoPreview(data.output_file);
+                        resetButton();
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('状态检查失败：', error);
+            });
+        }
+
+        function updateProgress(data) {
+            const progressBar = document.getElementById('progressBar');
+            const progressMessage = document.getElementById('progressMessage');
+            const progressPercentage = document.getElementById('progressPercentage');
+            const progressTime = document.getElementById('progressTime');
+
+            progressBar.style.width = data.progress + '%';
+            progressMessage.textContent = data.message || '处理中...';
+            progressPercentage.textContent = Math.round(data.progress) + '%';
+            progressTime.textContent = data.elapsed_time || '00:00:00';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.innerHTML = '<div class="error-message">❌ ' + message + '</div>';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.innerHTML = '<div class="success-message">✅ ' + message + '</div>';
+        }
+
+        function showVideoPreview(outputFile) {
+            const filename = outputFile.split('/').pop();
+            const previewVideo = document.getElementById('previewVideo');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const videoPreview = document.getElementById('videoPreview');
+
+            previewVideo.src = '/api/preview/' + filename;
+            downloadBtn.href = '/api/download/' + filename;
+            downloadBtn.download = filename;
+            
+            videoPreview.classList.add('show');
+        }
+
+        function resetButton() {
+            document.getElementById('generateBtn').disabled = false;
+            document.getElementById('generateBtn').textContent = '🚀 生成视频';
+        }
+
+        function resetStatus() {
+            fetch('/api/reset')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('progressSection').classList.remove('show');
+                    document.getElementById('videoPreview').classList.remove('show');
+                    document.getElementById('errorMessage').innerHTML = '';
+                    document.getElementById('successMessage').innerHTML = '';
+                    resetButton();
+                    stopStatusCheck();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                alert('重置失败：' + error.message);
+            });
+        }
+
+        // 页面加载时检查是否有正在进行的任务
+        window.addEventListener('load', function() {
+            fetch('/api/status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.is_running) {
+                    document.getElementById('progressSection').classList.add('show');
+                    document.getElementById('generateBtn').disabled = true;
+                    document.getElementById('generateBtn').textContent = '⏳ 生成中...';
+                    startStatusCheck();
+                }
+            })
+            .catch(error => {
+                console.error('初始状态检查失败：', error);
+            });
+        });
+    </script>
+</body>
+</html>
