@@ -1,157 +1,194 @@
 # ToVideo 视频生成工具
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![GitHub issues](https://img.shields.io/github/issues/zhou011/tovideo)](https://github.com/zhou011/tovideo/issues)
-[![GitHub stars](https://img.shields.io/github/stars/zhou011/tovideo)](https://github.com/zhou011/tovideo/stargazers)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-> **作者**: baozi  
-> **在线演示**: [http://localhost:8080](http://localhost:8080) (本地运行后访问)
+这是一个自动将文本、图片和音频内容组合成视频的工具。支持Web界面和命令行两种使用方式，能够快速生成包含封面页和内容页的视频文件。
 
-一个强大的视频生成工具，可以自动将文本、图片和音频内容组合成视频。支持多种输出格式和自定义配置。
 
-## ✨ 功能特性
+## 功能特点
 
-- 🎬 **自动视频生成**: 将文本、图片、音频智能组合成视频
-- 🖼️ **多格式支持**: 支持 JPG、PNG、GIF 等图片格式
-- 🎵 **音频集成**: 支持背景音乐和语音合成
-- 🌐 **Web界面**: 直观的网页操作界面，支持实时预览
-- ⚙️ **灵活配置**: 丰富的参数设置，满足不同需求
-- 📱 **响应式设计**: 支持桌面和移动设备
-- 🔧 **命令行工具**: 支持批量处理和自动化
+- 支持封面页面生成
+- 支持多个内容页面
+- 自动处理英文和中文音频
+- 支持文字叠加和转场效果
+- 自动下载和缓存媒体文件
 
-## 🚀 快速开始
+## 安装说明
 
-### 安装依赖
-
-#### 1. 安装 FFmpeg
-
-**macOS:**
+1. 克隆项目到本地：
 ```bash
-brew install ffmpeg
+git clone https://github.com/zhou011/tovideo.git
+cd tovideo
 ```
 
-**Ubuntu/Debian:**
+2. 创建并激活虚拟环境（推荐）：
 ```bash
-sudo apt update
-sudo apt install ffmpeg
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# 或
+venv\Scripts\activate  # Windows
 ```
 
-**Windows:**
-1. 从 [FFmpeg官网](https://ffmpeg.org/download.html) 下载
-2. 解压并添加到系统PATH
-
-#### 2. 安装 Python 依赖
-
+3. 安装依赖：
 ```bash
-pip install flask moviepy pillow requests
+pip install -r requirements.txt
 ```
 
-### 使用方法
+4. 安装 FFmpeg（必需）：
 
-#### Web 界面 (推荐)
+   **Windows:**
+   - 访问 [FFmpeg官网](https://ffmpeg.org/download.html#build-windows) 下载预编译版本
+   - 或使用 Chocolatey：`choco install ffmpeg`
+   - 或使用 Scoop：`scoop install ffmpeg`
 
-1. 启动 Web 服务器：
+   **macOS:**
+   ```bash
+   # 使用 Homebrew（推荐）
+   brew install ffmpeg
+   
+   # 或使用 MacPorts
+   sudo port install ffmpeg
+   ```
+
+   **Linux (Ubuntu/Debian):**
+   ```bash
+   sudo apt update
+   sudo apt install ffmpeg
+   ```
+
+   **Linux (CentOS/RHEL/Fedora):**
+   ```bash
+   # CentOS/RHEL
+   sudo yum install epel-release
+   sudo yum install ffmpeg
+   
+   # Fedora
+   sudo dnf install ffmpeg
+   ```
+
+   安装完成后，验证安装：
+   ```bash
+   ffmpeg -version
+   ```
+
+## 使用方法
+
+### AI智能生成JSON素材（推荐）
+
+如果您不想手动编写JSON配置文件，可以使用我们的AI助手来自动生成：
+
+1. 访问AI助手页面：[https://www.coze.cn/s/dJ58QS_8Sgg/](https://www.coze.cn/s/dJ58QS_8Sgg/)
+
+2. 在对话框中描述您想要制作的视频内容，例如：
+**语言学习类**：
+- 10条电铁见面打招呼的常用语
+- 日常购物必备英语对话
+- 商务会议常用表达
+
+3. AI助手会根据您的描述自动生成完整的JSON配置文件
+
+
+
+### 方法一：Web界面（推荐）
+
+1. 启动Web服务：
 ```bash
-python3 run_web.py
+python run_web.py
 ```
 
-2. 打开浏览器访问：`http://localhost:8080`
+2. 打开浏览器访问：http://localhost:8080
 
-3. 在网页界面中：
-   - 输入 JSON 配置
-   - 使用 "清空" 按钮清除输入
-   - 使用 "格式化" 按钮美化 JSON 格式
-   - 点击 "生成视频" 开始处理
+3. 在Web界面中：
+   - 输入JSON配置内容（可使用"清除"和"格式化"按钮管理JSON内容）
+   - 设置输出文件名
+   - 点击"生成视频"按钮
+   - 查看实时进度
+   - 预览和下载生成的视频
 
-#### 命令行使用
+### 方法二：命令行
 
-```bash
-python3 app.py
-```
-
-**示例 JSON 配置：**
+1. 准备输入JSON文件，格式如下：
 ```json
 {
-  "output_file": "output.mp4",
-  "cover_img": "cover.jpg",
-  "cover_speech": "欢迎观看我的视频",
-  "background_music": "background.mp3",
-  "video_duration": 10,
-  "resolution": [1920, 1080],
-  "fps": 30
+    "content": [
+        {
+            "cn": "中文文本",
+            "en": "English Text",
+            "img": "图片URL",
+            "cn_speech": "中文语音URL",
+            "en_speech": "英文语音URL"
+        }
+        // ... 更多内容
+    ],
+    "cover_img": "封面图片URL",
+    "cover_speech": "封面音频URL",
+    "cover_txt": "封面文字"
 }
 ```
 
-## ⚙️ 配置说明
+2. 运行程序：
+```bash
+python main.py -i input.json -o output.mp4
+```
 
-| 参数 | 类型 | 说明 | 默认值 |
-|------|------|------|--------|
-| `output_file` | string | 输出视频文件名 | "output.mp4" |
-| `cover_img` | string | 封面图片路径 | 必填 |
-| `cover_speech` | string | 封面语音文本 | 可选 |
-| `background_music` | string | 背景音乐路径 | 可选 |
-| `video_duration` | number | 视频时长(秒) | 10 |
-| `resolution` | array | 视频分辨率 [宽, 高] | [1920, 1080] |
-| `fps` | number | 帧率 | 30 |
+参数说明：
+- `-i` 或 `--input`：输入JSON文件路径（必需）
+- `-o` 或 `--output`：输出视频文件路径（可选，默认为 output.mp4）
 
-## 📝 注意事项
+## 配置说明
 
-- 确保所有输入文件路径正确且文件存在
-- 支持的图片格式：JPG, PNG, GIF, BMP
-- 支持的音频格式：MP3, WAV, AAC, M4A
-- 生成的视频将保存在当前目录
-- Web 服务器默认运行在端口 8080
+可以在 `config/settings.py` 中修改以下配置：
 
-## 🔧 常见问题
+- 视频尺寸和质量
+- 转场效果时长
+- 文字样式和位置
+- 输出视频编码参数
 
-### Q: FFmpeg 未找到
-A: 请确保 FFmpeg 已正确安装并添加到系统 PATH
+## 注意事项
 
-### Q: 图片无法加载
-A: 检查图片路径是否正确，支持相对路径和绝对路径
+1. 确保所有URL可以正常访问
+2. 建议使用高质量的图片和音频文件
+3. 运行过程中会在temp目录下缓存媒体文件
+4. 生成完成后会自动清理缓存
 
-### Q: 音频同步问题
-A: 调整 `video_duration` 参数以匹配音频长度
+## 常见问题
 
-### Q: 内存不足
-A: 降低视频分辨率或减少视频时长
+1. 如果出现字体相关错误，请确保系统安装了相应的字体
+2. 如果下载媒体文件失败，请检查网络连接和URL有效性
+3. 如果生成视频时内存不足，可以尝试降低视频质量设置
 
-## 🤝 贡献指南
+## 🤝 贡献
 
-我们欢迎所有形式的贡献！请查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解详细信息。
+我们欢迎任何形式的贡献！请查看 [贡献指南](CONTRIBUTING.md) 了解如何参与项目开发。
 
 ### 贡献者
 
-- [@baozi](https://github.com/baozi) - 项目创建者和主要维护者
+感谢所有为这个项目做出贡献的人！
 
-## 📋 更新日志
+- [@baozi](https://github.com/zhou011) - 项目创建者和维护者
 
-查看 [CHANGELOG.md](CHANGELOG.md) 了解版本更新历史。
+## 📝 更新日志
+
+查看 [CHANGELOG.md](CHANGELOG.md) 了解详细的版本更新历史。
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
-
-MIT 许可证允许您：
-- ✅ 商业使用
-- ✅ 修改代码
-- ✅ 分发代码
-- ✅ 私人使用
+本项目基于 MIT 许可证开源 - 查看 [LICENSE](LICENSE) 文件了解详情。
 
 ## 🙏 致谢
 
-- [FFmpeg](https://ffmpeg.org/) - 强大的多媒体处理框架
-- [MoviePy](https://zulko.github.io/moviepy/) - Python 视频编辑库
-- [Flask](https://flask.palletsprojects.com/) - 轻量级 Web 框架
-- [Pillow](https://pillow.readthedocs.io/) - Python 图像处理库
+- 感谢 [FFmpeg](https://ffmpeg.org/) 提供强大的视频处理能力
+- 感谢 [Flask](https://flask.palletsprojects.com/) 提供Web框架支持
 
 ## 📞 联系方式
 
-- 项目主页: [https://github.com/zhou011/tovideo](https://github.com/zhou011/tovideo)
-- 问题反馈: [GitHub Issues](https://github.com/zhou011/tovideo/issues)
-- 邮箱: [联系邮箱]
+如果您有任何问题或建议，请通过以下方式联系我们：
+
+- 创建 [Issue](https://github.com/baozi/tovideo/issues)
+- 提交 [Pull Request](https://github.com/baozi/tovideo/pulls)
 
 ---
 
-⭐ 如果这个项目对您有帮助，请给我们一个 Star！
+⭐ 如果这个项目对您有帮助，请给我们一个星标！
